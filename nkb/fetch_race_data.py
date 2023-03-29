@@ -3,15 +3,12 @@ import itertools
 from typing import Any, List, Optional
 import pandas as pd
 import numpy as np
-from sklearn import preprocessing
 from copy import deepcopy
-import numbers
 import requests
 from bs4 import BeautifulSoup as bs
 import bs4
 import re
 import datetime as dt
-import traceback
 
 import abc
 
@@ -41,9 +38,9 @@ class DataLoader:
         self.tables=pd.read_html(html.text, **tb_args)
         self.data = None
         try:
-            self.data = self.fetch_data()
+          self.data = self.fetch_data()
         except Exception as e:
-            self.data = self._back_up_fetch_data(e)
+          self.data = self._back_up_fetch_data(e)
         
         self.data = self.data.astype(self.COL_TYPES())
         self.process_data()
@@ -193,6 +190,7 @@ class ShutsubaDataLoader(DataLoader):
 
     def fetch_result(self):
         df = self.tables[0]
+        df.columns = [x.replace(' ', '') for x in df.columns]
         df = df.drop(df.index[0])
         df = self.append_race_id(df)
         df = pd.merge(df, self.fetch_race_meta(), on='race_id')
@@ -338,6 +336,7 @@ class RaceDataLoader(DataLoader):
 
     def fetch_result(self):
         df = self.tables[0]
+        df.columns = [x.replace(' ', '') for x in df.columns]
         df = self.append_race_id(df)
         df = df.rename(columns={'馬名':'horse_name','騎手':'jockey_name'})
         df = pd.merge(df, self.fetch_race_meta(), on='race_id')
